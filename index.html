@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADM DEEP Password Generator</title>
+    <!-- Modern Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            
+            --accent-guru: #818cf8;
+            --accent-guru-glow: rgba(129, 140, 248, 0.15);
+            --accent-guru-gradient: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%);
+            
+            --accent-lembaga: #2dd4bf;
+            --accent-lembaga-glow: rgba(45, 212, 191, 0.15);
+            --accent-lembaga-gradient: linear-gradient(135deg, #0d9488 0%, #2dd4bf 100%);
+            
+            --input-focus: #4f46e5;
+            --shadow-glow: 0 0 25px rgba(99, 102, 241, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            overflow-x: hidden;
+        }
+
+        /* Abstract Background Elements */
+        .bg-glow-1 {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0,0,0,0) 70%);
+            top: -10%;
+            left: -10%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .bg-glow-2 {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(45, 212, 191, 0.12) 0%, rgba(0,0,0,0) 70%);
+            bottom: -10%;
+            right: -10%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 640px;
+            z-index: 1;
+        }
+
+        /* Header Styling */
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #c7d2fe, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        /* Card / Glassmorphism Panel */
+        .generator-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .generator-panel:focus-within {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), var(--shadow-glow);
+        }
+
+        /* Input Wrapper */
+        .input-group {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--input-focus);
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Results Layout */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 480px) {
+            .results-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .result-card {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .result-card.guru {
+            border-left: 4px solid var(--accent-guru);
+        }
+
+        .result-card.guru:hover {
+            background: var(--accent-guru-glow);
+            border-color: rgba(129, 140, 248, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .result-card.lembaga {
+            border-left: 4px solid var(--accent-lembaga);
+        }
+
+        .result-card.lembaga:hover {
+            background: var(--accent-lembaga-glow);
+            border-color: rgba(45, 212, 191, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .result-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+        }
+
+        .guru .result-tag {
+            background: rgba(129, 140, 248, 0.15);
+            color: var(--accent-guru);
+        }
+
+        .lembaga .result-tag {
+            background: rgba(45, 212, 191, 0.15);
+            color: var(--accent-lembaga);
+        }
+
+        .result-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            min-height: 2.4rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .result-value.empty {
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 1.4rem;
+        }
+
+        /* Copy Button */
+        .btn-copy {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border-radius: 10px;
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .btn-copy:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-copy:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn-copy:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .guru .btn-copy.copied {
+            background: var(--accent-guru);
+            border-color: var(--accent-guru);
+            color: #0f172a;
+        }
+
+        .lembaga .btn-copy.copied {
+            background: var(--accent-lembaga);
+            border-color: var(--accent-lembaga);
+            color: #0f172a;
+        }
+
+        /* Info Banner */
+        .info-footer {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+            line-height: 1.5;
+            background: rgba(15, 23, 42, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .info-footer a {
+            color: var(--accent-guru);
+            text-decoration: none;
+        }
+
+        .info-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+
+    <div class="container">
+        <header>
+            <h1>ADM DEEP Password Generator</h1>
+            <p>Generate password instan untuk Guru & Lembaga</p>
+        </header>
+
+        <div class="generator-panel">
+            <div class="input-group">
+                <label for="input-name">Masukkan Nama (Guru / Lembaga)</label>
+                <div class="input-wrapper">
+                    <input type="text" id="input-name" placeholder="Contoh: alex, S.Pd.I atau SDN ADDFAST" autocomplete="off" autofocus>
+                </div>
+            </div>
+
+            <div class="results-grid">
+                <!-- Guru Card -->
+                <div class="result-card guru">
+                    <div class="result-header">
+                        <span class="result-tag">Password Guru</span>
+                        <!-- SVG icon for profile/teacher -->
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <div class="result-value empty" id="val-guru">Masukkan Nama...</div>
+                    <button class="btn-copy" id="btn-copy-guru" disabled>
+                        <!-- Copy icon -->
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        Salin Password
+                    </button>
+                </div>
+
+                <!-- Lembaga Card -->
+                <div class="result-card lembaga">
+                    <div class="result-header">
+                        <span class="result-tag">Password Lembaga</span>
+                        <!-- SVG icon for school/building -->
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.6;"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    </div>
+                    <div class="result-value empty" id="val-lembaga">Masukkan Nama...</div>
+                    <button class="btn-copy" id="btn-copy-lembaga" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        Salin Password
+                    </button>
+                </div>
+            </div>
+
+            <div class="info-footer">
+                Password di-generate otomatis menggunakan algoritma enkripsi bawaan sistem ADM DEEP. 
+                Gunakan <strong>Password Guru</strong> untuk masuk jika nama diinput di kolom Guru, atau <strong>Password Lembaga</strong> jika diinput di kolom Lembaga.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mappings based on ADM System REG sheet lookup tables
+        const CHAR_MAP = {
+            "A": 12126, "B": 17051, "C": 15928, "D": 11869, "E": 6578, "F": 19390,
+            "G": 1859, "H": 5037, "I": 2568, "J": 13930, "K": 5099, "L": 20477,
+            "M": 910, "N": 5954, "O": 8130, "P": 19596, "Q": 10109, "R": 19659,
+            "S": 7514, "T": 6414, "U": 13474, "V": 16722, "W": 5966, "X": 19132,
+            "Y": 352, "Z": 8309,
+            "1": 910, "2": 5954, "3": 8130, "4": 19596, "5": 10109,
+            "6": 19659, "7": 7514, "8": 6414, "9": 13474, "0": 75142
+        };
+
+        const ALPHABET = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+
+        function calculatePassword(name, multiplier, prefix) {
+            if (!name || name.trim() === "") return "";
+            
+            // Limit to 30 characters and uppercase
+            const cleanName = name.toUpperCase().slice(0, 30);
+            
+            // Sum values of characters
+            let totalSum = 0;
+            for (let i = 0; i < cleanName.length; i++) {
+                const char = cleanName[i];
+                totalSum += CHAR_MAP[char] || 0;
+            }
+            
+            const finalVal = totalSum * multiplier;
+            const valStr = String(finalVal);
+            
+            // Get last 2 digits + 11
+            const lastTwo = parseInt(valStr.slice(-2)) || 0;
+            const numPart = lastTwo + 11;
+            
+            // Get 2nd and 3rd digit (slice index 1 to 3)
+            const midStr = valStr.slice(1, 3);
+            const midVal = parseInt(midStr) || 0;
+            
+            const letterIdx = (midVal % 24) + 1;
+            const letter = ALPHABET[letterIdx - 1];
+            
+            return `${prefix}${letter}${numPart}`;
+        }
+
+        const inputName = document.getElementById('input-name');
+        const valGuru = document.getElementById('val-guru');
+        const valLembaga = document.getElementById('val-lembaga');
+        const btnCopyGuru = document.getElementById('btn-copy-guru');
+        const btnCopyLembaga = document.getElementById('btn-copy-lembaga');
+
+        let passwordGuru = "";
+        let passwordLembaga = "";
+
+        inputName.addEventListener('input', (e) => {
+            const val = e.target.value;
+            if (val.trim() === "") {
+                valGuru.textContent = "Masukkan Nama...";
+                valGuru.classList.add('empty');
+                valLembaga.textContent = "Masukkan Nama...";
+                valLembaga.classList.add('empty');
+                btnCopyGuru.disabled = true;
+                btnCopyLembaga.disabled = true;
+                passwordGuru = "";
+                passwordLembaga = "";
+            } else {
+                // Guru Password (starts with GD1. and multiplier 3723)
+                passwordGuru = calculatePassword(val, 3723, "GD1.");
+                valGuru.textContent = passwordGuru;
+                valGuru.classList.remove('empty');
+                btnCopyGuru.disabled = false;
+                
+                // Lembaga Password (starts with LD1. and multiplier 2573)
+                passwordLembaga = calculatePassword(val, 2573, "LD1.");
+                valLembaga.textContent = passwordLembaga;
+                valLembaga.classList.remove('empty');
+                btnCopyLembaga.disabled = false;
+            }
+        });
+
+        function setupCopyButton(btn, textGetter) {
+            btn.addEventListener('click', () => {
+                const text = textGetter();
+                if (!text) return;
+                
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalHTML = btn.innerHTML;
+                    btn.classList.add('copied');
+                    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Berhasil Disalin!`;
+                    
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                        btn.innerHTML = originalHTML;
+                    }, 2000);
+                });
+            });
+        }
+
+        setupCopyButton(btnCopyGuru, () => passwordGuru);
+        setupCopyButton(btnCopyLembaga, () => passwordLembaga);
+    </script>
+</body>
+</html>
