@@ -168,7 +168,7 @@
     <div class="container">
         <header>
             <h1>ADM DEEP Password Generator</h1>
-            <p>Generate password instan untuk Guru &amp; Lembaga</p>
+            <p>Generate password instan untuk ADM DEEP Semester 1 &amp; 2</p>
         </header>
 
         <!-- Tab Bar -->
@@ -186,22 +186,30 @@
         <div class="generator-panel">
             <div class="mode-badge">
                 <span class="dot"></span>
-                <span id="mode-label">Mode: SMT 1 — Masukkan satu nama</span>
+                <span id="mode-label">Mode: SMT 1 — Nama Sekolah dan Guru</span>
             </div>
 
-            <!-- SMT1: single input -->
-            <div id="inputs-smt1" class="inputs-row">
+            <!-- SMT1: names must match the two name rows in REG -->
+            <div id="inputs-smt1" class="inputs-row two-col">
                 <div class="input-group">
-                    <label for="input-name-smt1">Masukkan Nama (Guru / Lembaga)</label>
-                    <input type="text" id="input-name-smt1" placeholder="Contoh: alex, S.Pd.I atau SDN CIMAJA" autocomplete="off" autofocus>
+                    <label for="input-sekolah-smt1">Nama Sekolah / Lembaga (LD1)</label>
+                    <input type="text" id="input-sekolah-smt1" placeholder="Contoh: SDN 4 Sukahati" autocomplete="off" autofocus>
+                </div>
+                <div class="input-group">
+                    <label for="input-guru-smt1">Nama Guru (GD1)</label>
+                    <input type="text" id="input-guru-smt1" placeholder="Contoh: Laela Sari, S.Pd" autocomplete="off">
                 </div>
             </div>
 
-            <!-- SMT2: single input (guru name) used for both LD2 and GD2 -->
-            <div id="inputs-smt2" class="inputs-row" style="display:none;">
+            <!-- SMT2: names must match the two name rows in REG -->
+            <div id="inputs-smt2" class="inputs-row two-col" style="display:none;">
                 <div class="input-group">
-                    <label for="input-guru">Nama (Guru) → LD2.xxx &amp; GD2.xxx</label>
-                    <input type="text" id="input-guru" placeholder="Contoh: KANG ZAKUN" autocomplete="off">
+                    <label for="input-sekolah-smt2">Nama Sekolah / Lembaga (LD2)</label>
+                    <input type="text" id="input-sekolah-smt2" placeholder="Contoh: SDN ADDFAST" autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label for="input-guru-smt2">Nama Guru (GD2)</label>
+                    <input type="text" id="input-guru-smt2" placeholder="Contoh: Daffa" autocomplete="off">
                 </div>
             </div>
 
@@ -209,7 +217,7 @@
             <div class="results-grid">
                 <div class="result-card guru">
                     <div class="result-header">
-                        <span class="result-tag" id="tag-guru">Password Guru</span>
+                        <span class="result-tag" id="tag-guru">Password LD1 (Sekolah)</span>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </div>
                     <div class="result-value empty" id="val-guru">Masukkan Nama...</div>
@@ -221,7 +229,7 @@
 
                 <div class="result-card lembaga">
                     <div class="result-header">
-                        <span class="result-tag" id="tag-lembaga">Password Lembaga</span>
+                        <span class="result-tag" id="tag-lembaga">Password GD1 (Guru)</span>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                     </div>
                     <div class="result-value empty" id="val-lembaga">Masukkan Nama...</div>
@@ -233,7 +241,7 @@
             </div>
 
             <div class="info-footer" id="info-text">
-                Masukkan nama, lalu gunakan <strong>Password Guru (LD1.xxx)</strong> atau <strong>Password Lembaga (GD1.xxx)</strong> sesuai kolom yang diisi saat registrasi. Berlaku untuk <strong>ADM DEEP SMT 1</strong>.
+                Masukkan nama sekolah/lembaga untuk <strong>Password LD1</strong> dan nama guru untuk <strong>Password GD1</strong>, sesuai data pada workbook.
             </div>
         </div>
     </div>
@@ -257,23 +265,20 @@
 
         // =====================================================================
         // PROFILES
-        // SMT1: nilai = SUM(chars) * multiplier
+        // SMT1: row 39 (school) * 2573 → LD1; row 40 (teacher) * 3723 → GD1
         //       angka_2 = Right(nilai,2) + 11
         //       angka_hrf = Mid(nilai,2,2)  → JS substring(1,3)
         //       letter = ALPHABET[MOD(angka_hrf,24)]   (0-indexed, +1 then -1 cancel)
-        //       Both Guru & Lembaga computed from SAME single name input
-        //       Guru prefix = "LD1."   (REG!A100 in older files)
-        //       Lembaga prefix = "GD1." (REG!A101 in older files)
         //
         // SMT2 (ADM_DEEP SMT2_110726):
-        //       F39 = P1 = nama SEKOLAH  → nilai_gr  = SUM(I39:CO39)*1419 → LD2.xxx
-        //       F40 = P2 = nama GURU     → nilai_Lbg = SUM(I40:CO40)*1417 → GD2.xxx
+        //       F39 = nama SEKOLAH  → nilai_gr  = SUM(I39:CO39)*1419 → LD2.xxx
+        //       F40 = nama GURU     → nilai_Lbg = SUM(I40:CO40)*1417 → GD2.xxx
         //       angka_2 = Right(nilai,2) + 17
         //       Same Mid / MOD / ALPHABET logic
         // =====================================================================
 
         function sumChars(name) {
-            const upper = name.toUpperCase().slice(0, 30);
+            const upper = name.toUpperCase().slice(0, 85);
             let s = 0;
             for (const ch of upper) s += (CHAR_MAP[ch] || 0);
             return s;
@@ -315,9 +320,10 @@
         const elTagLembaga  = document.getElementById('tag-lembaga');
         const elInputsSmt1  = document.getElementById('inputs-smt1');
         const elInputsSmt2  = document.getElementById('inputs-smt2');
-        const elNameSmt1    = document.getElementById('input-name-smt1');
-        const elSekolah     = document.getElementById('input-sekolah');
-        const elGuruSmt2    = document.getElementById('input-guru');
+        const elSekolahSmt1 = document.getElementById('input-sekolah-smt1');
+        const elGuruSmt1    = document.getElementById('input-guru-smt1');
+        const elSekolahSmt2 = document.getElementById('input-sekolah-smt2');
+        const elGuruSmt2    = document.getElementById('input-guru-smt2');
 
         function setResult(guru, lembaga) {
             passGuru    = guru;
@@ -344,20 +350,17 @@
         }
 
         function recalcSmt1() {
-            const v = elNameSmt1.value;
-            if (!v.trim()) { setResult('', ''); return; }
             setResult(
-                calcPass(v, 3723, 'LD1.', 11),
-                calcPass(v, 2573, 'GD1.', 11)
+                calcPass(elSekolahSmt1.value, 2573, 'LD1.', 11),
+                calcPass(elGuruSmt1.value, 3723, 'GD1.', 11)
             );
         }
 
         function recalcSmt2() {
-            const guru = elGuruSmt2.value;
-            const name = guru.trim();
-            const ld2 = name ? calcPass(name, 1419, 'LD2.', 17) : '';
-            const gd2 = name ? calcPass(name, 1417, 'GD2.', 17) : '';
-            setResult(ld2, gd2);
+            setResult(
+                calcPass(elSekolahSmt2.value, 1419, 'LD2.', 17),
+                calcPass(elGuruSmt2.value, 1417, 'GD2.', 17)
+            );
         }
 
         function switchTab(m) {
@@ -371,19 +374,19 @@
             if (m === 'smt1') {
                 elInputsSmt1.style.display = '';
                 elInputsSmt2.style.display = 'none';
-                elModeLabel.textContent = 'Mode: SMT 1 — Masukkan satu nama';
-                elTagGuru.textContent    = 'Password Guru (LD1)';
-                elTagLembaga.textContent = 'Password Lembaga (GD1)';
-                elInfo.innerHTML = `Masukkan nama, lalu gunakan <strong>Password Guru (LD1.xxx)</strong> atau <strong>Password Lembaga (GD1.xxx)</strong> sesuai kolom yang diisi saat registrasi. Berlaku untuk <strong>ADM DEEP SMT 1</strong>.`;
+                elModeLabel.textContent = 'Mode: SMT 1 — Nama Sekolah dan Guru';
+                elTagGuru.textContent    = 'Password LD1 (Sekolah)';
+                elTagLembaga.textContent = 'Password GD1 (Guru)';
+                elInfo.innerHTML = `Masukkan nama sekolah/lembaga untuk <strong>LD1.xxx</strong> dan nama guru untuk <strong>GD1.xxx</strong>, sesuai data pada workbook <strong>ADM DEEP SMT 1</strong>.`;
                 recalcSmt1();
             } else {
                 elInputsSmt1.style.display = 'none';
                 elInputsSmt2.style.display = '';
-                elModeLabel.textContent = 'Mode: SMT 2 — Nama Guru (menghasilkan LD2 & GD2)';
-                elTagGuru.textContent    = 'Password LD2 (dari Guru)';
-                elTagLembaga.textContent = 'Password GD2 (dari Guru)';
+                elModeLabel.textContent = 'Mode: SMT 2 — Nama Sekolah dan Guru';
+                elTagGuru.textContent    = 'Password LD2 (Sekolah)';
+                elTagLembaga.textContent = 'Password GD2 (Guru)';
                 elInfo.innerHTML = `
-                    <strong>LD2.xxx</strong> dan <strong>GD2.xxx</strong> keduanya dihitung dari <strong>Nama Guru</strong> yang sama.
+                    <strong>LD2.xxx</strong> dihitung dari nama sekolah/lembaga dan <strong>GD2.xxx</strong> dari nama guru.
                     <br>
                     Berlaku untuk file <strong>ADM_DEEP SMT2_110726.xlsm</strong>.`;
                 recalcSmt2();
@@ -391,8 +394,9 @@
         }
 
         // Event listeners
-        elNameSmt1.addEventListener('input', recalcSmt1);
-        // elSekolah.addEventListener('input', recalcSmt2); // removed because school input no longer exists
+        elSekolahSmt1.addEventListener('input', recalcSmt1);
+        elGuruSmt1.addEventListener('input', recalcSmt1);
+        elSekolahSmt2.addEventListener('input', recalcSmt2);
         elGuruSmt2.addEventListener('input', recalcSmt2);
 
         function setupCopy(btn, getter) {
